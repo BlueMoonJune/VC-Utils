@@ -7,7 +7,8 @@ const path = require('node:path');
 const { names } = require("./vc_names.json")
 
 var config = require('./config.json');
-var { token, update_channel_id, update_role_id, ping_cooldown, new_vc_channel } = config
+var { update_channel_id, update_role_id, ping_cooldown, new_vc_channel } = config
+var { token } = require('./token.json')
 var last_ping_time = Date.now() - 6000000
 
 function print(val) {
