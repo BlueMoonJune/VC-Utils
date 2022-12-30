@@ -208,8 +208,9 @@ client.on(Events.VoiceStateUpdate, (oldState, newState) => {
                             var col = m.createReactionCollector((reaction, _user) => {return reaction.emoji.name === '🔴'})
 
                             col.on('collect', (reaction, user) => {
-                                print(`Gave the update role to ${user.displayName}!`)
-                                user.roles.add(update_role_id)
+                                guild.members.fetch(user).then(member => {
+                                    member.roles.add(update_role_id)
+                                })
                         })
                         })
                     })
