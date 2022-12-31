@@ -33,14 +33,14 @@ const client = new Client({
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessageReactions
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMembers
     ]
 
 })
 
 client.once("ready", () =>{
 
-    console.log("BOT IS ONLINE");
     client.user.setActivity("vc/help", { type: 2 })
     client.guilds.fetch().then(guilds => {
         guilds.forEach(g => {
@@ -63,16 +63,10 @@ client.once("ready", () =>{
             last_ping_times[g.id] = 0
             
         })
-        client.guilds.fetch().then(guilds => print(guilds.first()))
-
-        client.guilds.fetch().then(guilds => guilds.first().fetch().then(gu => gu.members.fetch(devID).then(d => {
-            dev = d
-            print("Dev Member is:")
-            print(dev)
-            dev.createDM().then(c => c.send("Bot Started!"))
-        })))
 
     })
+
+    console.log("BOT IS ONLINE");
 
 })
 
@@ -195,24 +189,31 @@ client.on(Events.VoiceStateUpdate, (oldState, newState) => {
                         var updateEmbed = new discord.EmbedBuilder()
                             .setColor(0x00ccff)
                             .setAuthor({name: `${newState.member.displayName} created a new VC!`, iconURL: newState.member.displayAvatarURL()})
-                            .setDescription("React with 🔴 to receive these pings")
+                            .setDescription("React with 🔴 to receive these pings\nReact with ❌ to not recieve these pings")
                     } else {
                         var updateEmbed = new discord.EmbedBuilder()
                             .setColor(0x00ccff)
                             .setAuthor({name: `${newState.member.displayName} joined ${newState.channel.name}!`, iconURL: newState.member.displayAvatarURL()})
-                            .setDescription("React with 🔴 to receive these pings")
+                            .setDescription("React with 🔴 to receive these pings\nReact with ❌ to not recieve these pings")
                     }
 
                     channel.send({content:`<@&${update_role_id}>`, embeds: [updateEmbed]}).then(m => {
-                        m.react('🔴').then(() => {
-                            var col = m.createReactionCollector((reaction, _user) => {return reaction.emoji.name === '🔴'})
+                        m.react('🔴').then(() =>
+                        m.react('❌').then(() => {
+                            var col = m.createReactionCollector((reaction, _user) => {return reaction.emoji.name === '🔴' || reaction.emoji.name === '❌'})
 
                             col.on('collect', (reaction, user) => {
-                                guild.members.fetch(user).then(member => {
-                                    member.roles.add(update_role_id)
-                                })
-                        })
-                        })
+                                if (reaction.emoji.name === '🔴') {
+                                    guild.members.fetch(user).then(member => {
+                                        member.roles.add(update_role_id)
+                                    })
+                                } else if (reaction.emoji.name === '❌') {
+                                    guild.members.fetch(user).then(member => {
+                                        member.roles.remove(update_role_id)
+                                    })
+                                }
+                            })
+                        }))
                     })
                     last_ping_times[guild.id] = Date.now()
                 }
