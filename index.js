@@ -257,8 +257,4 @@ client.on(Events.VoiceStateUpdate, (oldState, newState) => {
 
 })
 
-client.on(Events.MessageReactionAdd, (reaction, user) => {
-    print("reaction")
-})
-
 client.login(token)
